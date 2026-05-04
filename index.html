@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merch Project Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-inner">
+      <h1 class="header-title">Merch Tracker</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="btn-import">Import</button>
+        <button class="btn btn-secondary" id="btn-export">Export</button>
+        <button class="btn btn-primary" id="btn-new-project">+ New Project</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Attention Bar ── -->
+  <div class="attention-bar hidden" id="attention-bar">
+    <span class="attention-icon">⚠</span>
+    <span id="attention-text"></span>
+  </div>
+
+  <!-- ── Main Views ── -->
+  <main class="main">
+
+    <!-- Dashboard view -->
+    <div id="view-dashboard">
+      <div class="section-header">
+        <h2 class="section-title">Projects</h2>
+        <span class="project-count" id="project-count"></span>
+      </div>
+      <div class="card-grid" id="project-grid">
+        <!-- Project cards injected by JS -->
+      </div>
+      <div class="empty-state hidden" id="empty-state">
+        <p>No projects yet.</p>
+        <button class="btn btn-primary" id="btn-empty-new">+ Create your first project</button>
+      </div>
+    </div>
+
+    <!-- Detail view -->
+    <div id="view-detail" class="hidden">
+      <button class="btn btn-ghost back-btn" id="btn-back">← Back</button>
+      <div class="detail-header">
+        <div class="detail-meta">
+          <h2 class="detail-title" id="detail-title"></h2>
+          <div class="detail-badges">
+            <span class="badge" id="detail-status-badge"></span>
+            <span class="detail-deadline" id="detail-deadline"></span>
+          </div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-secondary" id="btn-edit-project">Edit Project</button>
+          <button class="btn btn-danger" id="btn-delete-project">Delete</button>
+        </div>
+      </div>
+
+      <div class="attention-inline hidden" id="detail-attention"></div>
+
+      <div class="tasks-section">
+        <div class="tasks-header">
+          <h3>Tasks</h3>
+          <button class="btn btn-primary btn-sm" id="btn-add-task">+ Add Task</button>
+        </div>
+        <div class="task-list" id="task-list">
+          <!-- Tasks injected by JS -->
+        </div>
+        <div class="empty-tasks hidden" id="empty-tasks">
+          <p>No tasks yet. Add one to track progress.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── Modal: Project ── -->
+  <div class="modal-overlay hidden" id="modal-project">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-project-title">New Project</h3>
+        <button class="modal-close" id="btn-close-project-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span>Project name</span>
+          <input type="text" id="input-project-name" placeholder="e.g. Clash Royale S4 Plushies" />
+        </label>
+        <label class="field">
+          <span>Deadline</span>
+          <input type="date" id="input-project-deadline" />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select id="input-project-status">
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Blocked">Blocked</option>
+            <option value="Done">Done</option>
+          </select>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-project">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-project">Save Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Task ── -->
+  <div class="modal-overlay hidden" id="modal-task">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-task-title">New Task</h3>
+        <button class="modal-close" id="btn-close-task-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span>Task name</span>
+          <input type="text" id="input-task-name" placeholder="e.g. Approve sample" />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select id="input-task-status">
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Due date <span class="optional">(optional)</span></span>
+          <input type="date" id="input-task-due" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-task">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-task">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="import-file-input" accept=".json" class="hidden" />
+
+  <script src="app.js"></script>
+</body>
+</html>
