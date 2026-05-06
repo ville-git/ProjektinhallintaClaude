@@ -12,24 +12,25 @@ https://ville-git.github.io/ProjektinhallintaClaude/
 https://github.com/ville-git/ProjektinhallintaClaude
 
 ## How to Run Locally
-Just open `index.html` in any browser — no installation or server needed.
+Open `index.html` in any browser — no installation or server needed.
 
 ## File Structure
 ```
 ProjektinhallintaClaude/
-├── index.html      # Page structure: header, dashboard view, detail view, modals
-├── styles.css      # All styling: layout, cards, badges, modals, responsive
-├── app.js          # All logic: data layer, rendering, event handling
+├── index.html      # Page structure: header, dashboard, side panel, command center, modals
+├── styles.css      # Design system: tokens, layout, components, animations
+├── app.js          # All logic: data layer, rendering, interactions, inline editing
 └── CLAUDE.md       # This file
 ```
 
 ## Stack
 - **Frontend:** Vanilla HTML + CSS + JavaScript (no framework, no build step)
-- **Storage:** `localStorage` (data lives in the browser, persists between sessions)
-- **Hosting:** GitHub Pages (free, auto-deploys from `main` branch)
+- **Storage:** `localStorage` (persists between sessions, key: `merch_tracker_data`)
+- **Font:** Inter via Google Fonts
+- **Hosting:** GitHub Pages (auto-deploys from `main` branch)
 
 ## Data Model
-Data is stored in `localStorage` under the key `merch_tracker_data` as JSON:
+Stored as JSON in `localStorage` under key `merch_tracker_data`:
 
 ```json
 {
@@ -39,7 +40,7 @@ Data is stored in `localStorage` under the key `merch_tracker_data` as JSON:
       "name": "Clash Royale S4 Plushies",
       "deadline": "2026-06-01",
       "status": "In Progress",
-      "createdAt": "2026-05-04",
+      "createdAt": "2026-05-05",
       "tasks": [
         {
           "id": "uuid",
@@ -60,28 +61,108 @@ Data is stored in `localStorage` under the key `merch_tracker_data` as JSON:
 | Task | Not Started · In Progress · Done |
 
 ## "Needs Attention" Logic
-A project is flagged (yellow card border + attention tag) when **any** of these are true:
+A project is flagged (amber left border + pulsing dot) when **any** of these are true:
 1. Project status is **Blocked**
 2. Deadline is **within 7 days** (and project is not Done)
 3. At least one task has a **past due date** and is not Done
 
-Done projects are never flagged.
+Done projects are never flagged regardless of deadline.
+
+## Layout
+
+```
+┌──────────────────────────────────────────────────────┐
+│  HEADER: Merch Tracker  [⚡ Agents] [☾] [•••] [+ New]│
+├──────────────────────────────────────────────────────┤
+│  PROJECT GRID (auto-fill, min 240px cards)           │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐        │
+│  │  Card  │ │  Card  │ │  Card  │ │  Card  │        │
+│  └────────┘ └────────┘ └────────┘ └────────┘        │
+├──────────────────────────────────────────────────────┤
+│  COMMAND CENTER (all tasks across all projects)      │
+│  [Status pills] [Project ▾] [Sort ▾]                │
+│  Project │ Task │ Status │ Due date │                │
+└──────────────────────────────────────────────────────┘
+```
+
+When a project card is clicked, a **side detail panel** slides in from the right.
+The grid stays visible and dimmed behind it. Press **Escape** or click the overlay to close.
 
 ## Features
-- Create, edit, delete projects (name + deadline + status)
-- Create, edit, delete tasks under each project (name + status + optional due date)
-- Dashboard with project cards showing status, deadline, task progress bar
-- Sticky attention bar counting projects that need attention
-- Project detail view with full task list
-- **Export:** downloads all data as a dated `.json` file (backup)
-- **Import:** restores data from a previously exported `.json` file
+
+### Dashboard
+- Project cards in a responsive grid (auto-fills to ~5 columns at 1400px wide)
+- Each card: name, status badge, deadline, up to 3 tasks with status dots, progress bar
+- Attention: amber left border + pulsing dot on cards that need attention
+- Cards animate in with a stagger on render
+
+### Inline Editing (no modal needed)
+- **Status badge** on any card → click opens a floating dropdown with all 4 statuses
+- **Deadline** on any card → click replaces text with a date picker in-place
+- Same inline editing available inside the detail panel
+
+### Detail Panel (slide-in from right)
+- Two tabs: **Tasks** and **Automation ✦** (placeholder)
+- Project name, inline-editable status and deadline
+- Full task list: click task status badge to cycle (Not Started → In Progress → Done)
+- Edit and delete tasks from the panel
+- Edit project name or delete project
+
+### Command Center (below the grid)
+- Unified table of every task across all projects
+- Filter by status (pill buttons) and by project (dropdown)
+- Sort by: Due date / Project / Status / Task name
+- Overdue rows highlighted in red
+- Click project name → opens that project's detail panel
+- Click task status → cycles status inline
+- Edit and delete tasks directly from the table
+
+### Agent Panel (⚡ Agents button)
+- Slides in from the right alongside the workspace (pushes grid, doesn't overlay it)
+- Architectural placeholder for future automation features
+- Content slot is wired and ready — adding features requires no layout changes
+
+### Theme
+- Dark / Light toggle in the header (☾ / ☀)
+- Preference persists across sessions (stored in `localStorage` as `merch_tracker_theme`)
+- Smooth 250ms transition on all surfaces and text
+
+### Data Management
+- **Export:** Downloads all data as a dated `.json` file (via ••• menu)
+- **Import:** Restores from a previously exported `.json` file (via ••• menu)
+
+## Design System
+All colours, spacing, shadows, and radii are CSS custom properties in `styles.css`.
+Switching between light and dark theme changes only the `:root` / `[data-theme="dark"]` token set.
+
+| Token group | Examples |
+|---|---|
+| Accent purple | `--purple`, `--purple-light`, `--purple-hover` |
+| Accent blue | `--blue`, `--blue-light` |
+| Status colours | `--status-ip-bg`, `--status-bl-text`, etc. |
+| Shadows | `--shadow-xs` through `--shadow-panel` |
+| Transitions | `--transition-fast` (120ms) / `--transition-base` (200ms) / `--transition-slow` (320ms) |
+
+## Animations
+| Element | Motion |
+|---|---|
+| Project cards | Staggered fade-up (40ms delay between cards) |
+| Attention dot | Slow amber pulse, 2.4s loop |
+| Side / Agent panel | Slide from right, cubic-bezier ease-out |
+| Overlay | Fade in/out (element stays in DOM to allow transition) |
+| Status badges | Colour crossfade on change |
+| Progress bars | Eased width transition (500ms) |
+
+`prefers-reduced-motion` is respected — all animations collapse to instant.
 
 ## Design Decisions
-- **localStorage over a server:** Single-user tool — no backend needed. Simpler to run and host.
-- **Export/Import buttons:** Provides a manual backup mechanism since localStorage is browser-bound.
-- **No framework:** Keeps the codebase small and easy to understand without developer tooling.
-- **GitHub Pages:** Free static hosting that auto-serves `index.html` from the `main` branch.
-- **Vanilla JS:** No build step — edit a file, push, done.
+- **localStorage:** No backend needed for single-user tool. Export/Import provides manual backup.
+- **No framework:** No build step — edit a file, push, done. Easy to maintain without developer tooling.
+- **Inline editing for status/deadline:** Fewer clicks, feels faster than opening a modal for small changes.
+- **Task status cycles on click:** Single-click to advance a task avoids modal overhead.
+- **Agent panel pushes workspace:** Keeps the grid visible while automation panel is open (vs. overlaying it).
+- **Side panel uses transform, not display:none:** Allows CSS transitions to fire correctly.
+- **Command Center hidden until projects exist:** Avoids empty/confusing UI on first load.
 
 ## Deploying Updates
 When you make changes to any file:
@@ -91,15 +172,14 @@ git add index.html styles.css app.js CLAUDE.md
 git commit -m "Describe what you changed"
 git push
 ```
-GitHub Pages will update the live site within ~1 minute.
+GitHub Pages updates the live site within ~1 minute.
 
 ## Current State
-- [x] Step 1: HTML skeleton + CSS design system
-- [x] Step 2: Data layer (localStorage CRUD)
-- [x] Step 3: Dashboard view with project cards
-- [x] Step 4: Project detail view with task list
-- [x] Step 5: Create & edit modals for projects and tasks
-- [x] Step 6: "Needs attention" logic + alert bar + card highlighting
-- [x] Step 7: Export / Import JSON
-- [x] Step 8: CLAUDE.md
-- [x] Deployed to GitHub Pages
+- [x] Step 1: Design system — CSS variables, Inter font, spacing/shadow scale
+- [x] Step 2: Layout shell — header, grid, command center section, agent panel slot
+- [x] Step 3: Project cards — compact design, task preview, progress, attention dot
+- [x] Step 4: Inline editing — status dropdown, deadline date picker
+- [x] Step 5: Detail panel — slide-in, task list, automation tab placeholder
+- [x] Step 6: Command Center — unified task table, filter + sort
+- [x] Step 7: Theme toggle + animations
+- [x] Step 8: Deployed to GitHub Pages, CLAUDE.md updated

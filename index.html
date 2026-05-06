@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Merch Project Tracker</title>
+  <title>Merch Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -11,11 +14,18 @@
   <!-- ── Header ── -->
   <header class="header">
     <div class="header-inner">
-      <h1 class="header-title">Merch Tracker</h1>
+      <h1 class="header-title">Merch <span>Tracker</span></h1>
       <div class="header-actions">
-        <button class="btn btn-secondary" id="btn-import">Import</button>
-        <button class="btn btn-secondary" id="btn-export">Export</button>
-        <button class="btn btn-primary" id="btn-new-project">+ New Project</button>
+        <button class="btn-theme" id="btn-theme">☾ Dark</button>
+        <button class="btn btn-ghost btn-sm" id="btn-agent-panel">⚡ Agents</button>
+        <div class="overflow-menu">
+          <button class="btn btn-ghost btn-icon" id="btn-overflow" title="More options">•••</button>
+          <div class="overflow-dropdown hidden" id="overflow-dropdown">
+            <button class="overflow-item" id="btn-export">↓ Export JSON</button>
+            <button class="overflow-item" id="btn-import">↑ Import JSON</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-new-project">+ New Project</button>
       </div>
     </div>
   </header>
@@ -26,60 +36,111 @@
     <span id="attention-text"></span>
   </div>
 
-  <!-- ── Main Views ── -->
-  <main class="main">
+  <!-- ── App Body ── -->
+  <div class="app-body">
 
-    <!-- Dashboard view -->
-    <div id="view-dashboard">
-      <div class="section-header">
-        <h2 class="section-title">Projects</h2>
-        <span class="project-count" id="project-count"></span>
-      </div>
-      <div class="card-grid" id="project-grid">
-        <!-- Project cards injected by JS -->
-      </div>
-      <div class="empty-state hidden" id="empty-state">
-        <p>No projects yet.</p>
-        <button class="btn btn-primary" id="btn-empty-new">+ Create your first project</button>
-      </div>
-    </div>
+    <!-- Workspace (grid + command centre) -->
+    <div class="workspace" id="workspace">
+      <main class="main">
 
-    <!-- Detail view -->
-    <div id="view-detail" class="hidden">
-      <button class="btn btn-ghost back-btn" id="btn-back">← Back</button>
-      <div class="detail-header">
-        <div class="detail-meta">
-          <h2 class="detail-title" id="detail-title"></h2>
-          <div class="detail-badges">
-            <span class="badge" id="detail-status-badge"></span>
-            <span class="detail-deadline" id="detail-deadline"></span>
+        <!-- Dashboard view -->
+        <div id="view-dashboard">
+          <div class="section-header">
+            <h2 class="section-title">Projects</h2>
+            <span class="project-count" id="project-count"></span>
+          </div>
+          <div class="card-grid" id="project-grid">
+            <!-- Cards injected by JS -->
+          </div>
+          <div class="empty-state hidden" id="empty-state">
+            <div class="empty-icon">◫</div>
+            <p>No projects yet.</p>
+            <button class="btn btn-primary" id="btn-empty-new">+ Create your first project</button>
           </div>
         </div>
-        <div class="detail-actions">
-          <button class="btn btn-secondary" id="btn-edit-project">Edit Project</button>
-          <button class="btn btn-danger" id="btn-delete-project">Delete</button>
+
+        <!-- Detail view (legacy — replaced by side panel in Step 5, kept for JS continuity) -->
+        <div id="view-detail" class="hidden">
+          <button class="btn btn-ghost back-btn" id="btn-back">← Back</button>
+          <div class="detail-header">
+            <div class="detail-meta">
+              <h2 class="detail-title" id="detail-title"></h2>
+              <div class="detail-badges">
+                <span class="badge" id="detail-status-badge"></span>
+                <span class="detail-deadline" id="detail-deadline"></span>
+              </div>
+            </div>
+            <div class="detail-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-edit-project">Edit Project</button>
+              <button class="btn btn-danger btn-sm" id="btn-delete-project">Delete</button>
+            </div>
+          </div>
+          <div class="attention-inline hidden" id="detail-attention"></div>
+          <div class="tasks-section">
+            <div class="tasks-header">
+              <h3>Tasks</h3>
+              <button class="btn btn-primary btn-sm" id="btn-add-task">+ Add Task</button>
+            </div>
+            <div class="task-list" id="task-list"></div>
+            <div class="empty-tasks hidden" id="empty-tasks">
+              <p>No tasks yet. Add one to track progress.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Command Center (populated in Step 6) -->
+        <section class="command-center hidden" id="command-center">
+          <div class="section-header command-center-header">
+            <h2 class="section-title">Command Center</h2>
+            <div class="command-center-controls" id="command-center-controls">
+              <!-- Filter/sort controls added in Step 6 -->
+            </div>
+          </div>
+          <div id="command-center-body">
+            <!-- Task table injected in Step 6 -->
+          </div>
+        </section>
+
+      </main>
+    </div><!-- /workspace -->
+
+    <!-- Agent Panel Sidebar (architectural slot — content added later) -->
+    <aside class="agent-panel hidden" id="agent-panel" aria-label="Agent Panel">
+      <div class="agent-panel-header">
+        <div class="agent-panel-title">
+          <span class="agent-panel-icon">⚡</span>
+          <h3>Agent Panel</h3>
+        </div>
+        <button class="btn btn-ghost btn-icon" id="btn-close-agent" title="Close">✕</button>
+      </div>
+      <div class="agent-panel-body">
+        <div class="agent-placeholder">
+          <div class="agent-placeholder-graphic">
+            <div class="agent-dot"></div>
+            <div class="agent-dot"></div>
+            <div class="agent-dot"></div>
+          </div>
+          <p class="agent-placeholder-title">Automation coming soon</p>
+          <p class="agent-placeholder-desc">
+            This panel is reserved for AI-powered features — deadline alerts,
+            status suggestions, progress nudges, and more.
+            Features will appear here for your approval before activating.
+          </p>
         </div>
       </div>
+    </aside>
 
-      <div class="attention-inline hidden" id="detail-attention"></div>
+  </div><!-- /app-body -->
 
-      <div class="tasks-section">
-        <div class="tasks-header">
-          <h3>Tasks</h3>
-          <button class="btn btn-primary btn-sm" id="btn-add-task">+ Add Task</button>
-        </div>
-        <div class="task-list" id="task-list">
-          <!-- Tasks injected by JS -->
-        </div>
-        <div class="empty-tasks hidden" id="empty-tasks">
-          <p>No tasks yet. Add one to track progress.</p>
-        </div>
-      </div>
+  <!-- ── Side Detail Panel (structure ready, wired in Step 5) ── -->
+  <div class="panel-overlay hidden" id="panel-overlay"></div>
+  <aside class="side-panel hidden" id="side-panel" aria-label="Project detail">
+    <div class="side-panel-inner">
+      <!-- Content injected in Step 5 -->
     </div>
+  </aside>
 
-  </main>
-
-  <!-- ── Modal: Project ── -->
+  <!-- ── Modal: New / Edit Project ── -->
   <div class="modal-overlay hidden" id="modal-project">
     <div class="modal">
       <div class="modal-header">
@@ -112,7 +173,7 @@
     </div>
   </div>
 
-  <!-- ── Modal: Task ── -->
+  <!-- ── Modal: New / Edit Task ── -->
   <div class="modal-overlay hidden" id="modal-task">
     <div class="modal">
       <div class="modal-header">
@@ -142,6 +203,22 @@
         <button class="btn btn-primary" id="btn-save-task">Save Task</button>
       </div>
     </div>
+  </div>
+
+  <!-- Floating status dropdown (inline editing) -->
+  <div class="inline-dropdown hidden" id="inline-status-dropdown" role="listbox">
+    <button class="inline-dropdown-item" data-value="Not Started">
+      <span class="badge badge-not-started">Not Started</span>
+    </button>
+    <button class="inline-dropdown-item" data-value="In Progress">
+      <span class="badge badge-in-progress">In Progress</span>
+    </button>
+    <button class="inline-dropdown-item" data-value="Blocked">
+      <span class="badge badge-blocked">Blocked</span>
+    </button>
+    <button class="inline-dropdown-item" data-value="Done">
+      <span class="badge badge-done">Done</span>
+    </button>
   </div>
 
   <!-- Hidden file input for import -->
